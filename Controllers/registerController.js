@@ -26,7 +26,7 @@ const handleNewUser = async (req, res) => {
     console.log(newUser);
 
 
-    res.status(201).json({ success: `New user ${user} created!` });
+    res.status(201).json({ success: `New user ${user} created!`,userId:newUser.id });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

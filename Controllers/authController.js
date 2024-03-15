@@ -9,7 +9,7 @@ const handleLogin = async (req, res) => {
       .status(400)
       .json({ message: "Username and password are required." });
   const foundUser = await User.findOne({ username: user }).exec();
-  if (!foundUser) return res.sendStatus(401); //Unauthorized
+  if (!foundUser) return res.status(401).json({message:"Username Not found! Try again registering as new user"}); //Unauthorized
   // evaluate password
   const match = await bcrypt.compare(pwd, foundUser.password);
   if (match) {
@@ -33,7 +33,7 @@ const handleLogin = async (req, res) => {
       secure: false,
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.json({ accessToken });
+    res.json({id:foundUser.id ,accessToken });
   } else {
     res.sendStatus(401);
   }
