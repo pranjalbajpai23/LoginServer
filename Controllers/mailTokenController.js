@@ -2,7 +2,13 @@ const RefreshStore = require("../Model/RefreshStore");
 const Cryptr = require("cryptr");
 const cryptr = new Cryptr(process.env.REFRESH_ENCRYPTION);
 const storeGmailRefreshToken = async (req, res) => {
-  if (!req?.body?.id || !req?.body?.gmailID || !req?.body?.refresh)
+  if (
+    !req?.body?.id ||
+    !req?.body?.gmailID ||
+    !req?.body?.gmailID ||
+    !req?.body?.phoneNumber ||
+    !req?.body?.refresh
+  )
     return res
       .status(400)
       .json({ message: "email and refresh token are required!" });
@@ -20,6 +26,7 @@ const storeGmailRefreshToken = async (req, res) => {
         _id: req.body.id,
         gmailID: req.body.gmailID,
         gmailRefreshToken: req.body.refresh,
+        phoneNumber: req.body.phoneNumber,
       });
       res.status(201).json({ message: "refresh token registered" });
     }
@@ -27,6 +34,7 @@ const storeGmailRefreshToken = async (req, res) => {
     console.error(error);
   }
 };
+
 const retrieveRefreshToken = async (req, res) => {
   if (!req?.params?.id) {
     return res.status(401).json({ message: "user id not found" });
@@ -36,9 +44,11 @@ const retrieveRefreshToken = async (req, res) => {
   try {
     const foundUser = await RefreshStore.findOne({ _id: id });
     if (foundUser) {
-      const refresh=foundUser.gmailRefreshToken;
+      const refresh = foundUser.gmailRefreshToken;
       // console.log(encryptRefresh);
       // const refresh = cryptr.decrypt(encryptRefresh);
+      // working here for phoneNumber -
+
       return res.status(200).json({ refreshToken: refresh });
     } else {
       return res.status(400).json({ message: "refresh token not found" });

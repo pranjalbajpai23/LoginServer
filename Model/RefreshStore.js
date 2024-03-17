@@ -8,6 +8,10 @@ const refreshSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports=mongoose.model('RefreshStore',refreshSchema);
