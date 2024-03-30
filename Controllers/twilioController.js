@@ -22,8 +22,8 @@ const twilioHandler = async (req, res) => {
   const id = req.body.id;
   const phoneNumber = await getPhoneNumber(id);
   if (phoneNumber) {
-    console.log(phoneNumber);
     const { from, subject, body } = req.body;
+    // console.log(from, subject, body);
     if (!from || !subject || !body) {
       return res.status(400).json({ message: "Please supply mail content" });
     }
@@ -32,15 +32,15 @@ const twilioHandler = async (req, res) => {
       .create({
         body: message,
         from: "whatsapp:+14155238886",
-        to: `whatsapp:+916386674090`,
+        to: `whatsapp:+91${phoneNumber}`,
       })
       .then((message) => {
         console.log("Message sent successfully");
-        res.status(200).send("Message sent successfully");
+        res.status(200).json({ message: "Message sent successfully" });
       })
       .catch((err) => {
         console.log(err);
-        res.status(500).send("Internal server error");
+        res.status(500).json({ message: "Internal server error" });
       });
   } else {
     return res.status(400).json({ message: "No phone number found in DB" });
