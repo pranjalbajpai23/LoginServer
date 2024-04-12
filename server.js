@@ -35,7 +35,7 @@ app.use("/logout", require("./Routes/logout"));
 app.use(verifyJWT);
 
 app.use("/user", require("./Routes/API/mailToken"));
-app.use('/twilio',require('./Routes/API/twilio'));
+app.use("/twilio", require("./Routes/API/twilio"));
 //step 3 - Starting server only when connection with MongoDB is established
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");

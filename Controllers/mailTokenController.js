@@ -34,66 +34,74 @@ const storeGmailRefreshToken = async (req, res) => {
       .json({ message: "Email and refresh token are required!" });
 
   try {
-    const foundUser = await RefreshStore.findOne({
-      _id: req.body.id,
-    });
+    const foundUser = await RefreshStore.findById(req.body.id);
     if (foundUser) {
       const gmailId = req.body.gmailID;
-      const updatedDoc = await RefreshStore.findOneAndUpdate(
-        { "gmailData.gmailId": gmailId },
-        { $set: { "gmailData.$.gmailRefreshToken": req.body.refresh } },
-        { new: true }
-      );
-      if (updatedDoc) {
-        console.log(updatedDoc);
-      } else {
-        const updatedDoc = await RefreshStore.findOneAndUpdate(
-          {},
-          {
-            $push: {
-              gmailData: {
-                gmailId: gmailId,
-                gmailRefreshToken: req.body.refresh,
-              },
-            },
-          },
-          { new: true }
-        );
-        console.log(updatedDoc);
+
+      // Check if gmailData exists
+      if (!foundUser.gmailData) {
+        foundUser.gmailData = new Map();
       }
+
+      foundUser.gmailData.set(gmailId, { gmailRefreshToken: req.body.refresh });
+      // Save the updated document
+      const updatedDoc = await foundUser.save();
+      console.log(updatedDoc);
       return res
         .status(200)
         .json({ message: "Refresh Token Updated Successfully!" });
+    } else {
+      return res.status(404).json({
+        message: "User not found. Please try again.",
+      });
     }
   } catch (error) {
     console.error(error);
-    return res.status(404).json({
-      message: "User not found try updating your phone number again",
+    return res.status(500).json({
+      message: "Internal Server Error",
     });
   }
 };
 
 const retrieveRefreshToken = async (req, res) => {
   if (!req?.params?.id) {
-    return res.status(401).json({ message: "user id not found" });
+    return res.status(401).json({ message: "User id not found" });
   }
+
   const id = req.params.id;
-  console.log(id);
+
   try {
     const foundUser = await RefreshStore.findOne({ _id: id });
-    if (foundUser) {
-      const refresh = foundUser.gmailRefreshToken;
-      // console.log(encryptRefresh);
+    console.log(foundUser.gmailData);
 
-      return res.status(200).json({ refreshToken: refresh });
+    if (foundUser && foundUser.gmailData) {
+      console.log("Gmail Data found");
+      //********need to save in array */
+      const gmailDataObject = {};
+      for (const [key, value] of foundUser.gmailData.entries()) {
+        gmailDataObject[key] = value;
+      }
+      return res.status(200).json({ data: gmailDataObject });
     } else {
-      return res.status(400).json({ message: "refresh token not found" });
+      console.log("Gmail Data not found");
+      return res.status(404).json({ message: "Gmail Data not found" });
     }
-  } catch (error) {
-    console.error("Error retrieving refresh token:", error);
+  } catch (err) {
+    console.log(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+//   if (foundUser) {
+//     const gmailData = foundUser.gmailData; // Accessing gmailData array
+//     return res.status(200).json({ data: gmailData });
+//   } else {
+//     return res.status(400).json({ message: "No refresh token not found" });
+//   }
+// } catch (error) {
+//   console.error("Error retrieving refresh token:", error);
+//   return res.status(500).json({ message: "Internal server error" });
+// }
 
 module.exports = {
   handlePhoneNumber,

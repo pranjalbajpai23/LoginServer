@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 const refreshSchema = new mongoose.Schema({
   gmailData: {
     type: Map,
-    of: String,
+    of: {
+      // gmailId: String,
+      // gmailRefreshToken: String,
+    },
   },
   phoneNumber: {
     type: String,
-    required: true,
   },
 });
 
-module.exports=mongoose.model('RefreshStore',refreshSchema);
+module.exports = mongoose.model("RefreshStore", refreshSchema);
