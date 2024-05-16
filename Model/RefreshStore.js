@@ -10,6 +10,7 @@ const refreshSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
   },
+  email_list:[String]
 });
 
 module.exports = mongoose.model("RefreshStore", refreshSchema);
